@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Product Images</title>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <div id="output"></div>
+    
+    <script>
+        function createProductImage(productName, filename, bgColor, textColor) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, 600, 400);
+            
+            // Add gradient overlay
+            const gradient = ctx.createLinearGradient(0, 0, 600, 400);
+            gradient.addColorStop(0, 'rgba(255,255,255,0.2)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.1)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 600, 400);
+            
+            // Add product name
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(productName, 300, 180);
+            
+            // Add "Product Image" text
+            ctx.font = '20px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.fillText('Product Image', 300, 220);
+            
+            // Convert to data URL and create download link
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = filename;
+            link.textContent = `Download ${filename}`;
+            link.style.display = 'block';
+            link.style.margin = '10px 0';
+            link.style.padding = '10px';
+            link.style.backgroundColor = '#007bff';
+            link.style.color = 'white';
+            link.style.textDecoration = 'none';
+            link.style.width = '300px';
+            link.style.textAlign = 'center';
+            
+            document.getElementById('output').appendChild(link);
+            
+            return dataURL;
+        }
+        
+        // Create all product images
+        const products = [
+            { name: 'MacBook Pro 16"', file: 'macbook-pro.png', bg: '#2c3e50', text: '#ecf0f1' },
+            { name: 'iPhone 15 Pro Max', file: 'iphone-15.png', bg: '#c0392b', text: '#ecf0f1' },
+            { name: 'Sony WH-1000XM5', file: 'sony-headphones.png', bg: '#27ae60', text: '#ecf0f1' },
+            { name: 'Apple Watch Ultra 2', file: 'apple-watch.png', bg: '#f39c12', text: '#2c3e50' },
+            { name: 'iPad Pro 12.9"', file: 'ipad-pro.png', bg: '#8e44ad', text: '#ecf0f1' }
+        ];
+        
+        products.forEach(product => {
+            createProductImage(product.name, product.file, product.bg, product.text);
+        });
+        
+        document.getElementById('output').innerHTML += '<p style="margin-top: 20px;"><strong>Right-click each link and save as...</strong></p>';
+    </script>
+</body>
+</html>

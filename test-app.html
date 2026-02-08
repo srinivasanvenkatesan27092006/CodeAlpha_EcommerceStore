@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Status Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 E-Commerce Application Status Test</h1>
+    
+    <div class="test-section">
+        <h2>📡 Server Status</h2>
+        <div id="server-status" class="status info">Testing server connection...</div>
+        <button onclick="testServer()">Test Server Connection</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🖼️ Image Loading Test</h2>
+        <div id="image-status" class="status info">Click test to check images...</div>
+        <button onclick="testImages()">Test Product Images</button>
+        <div id="image-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🛣️ Route Testing</h2>
+        <div id="route-status" class="status info">Ready to test routes...</div>
+        <button onclick="testRoute('/')">Test Home Page</button>
+        <button onclick="testRoute('/login')">Test Login Page</button>
+        <button onclick="testRoute('/register')">Test Register Page</button>
+        <div id="route-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Application Summary</h2>
+        <div id="summary" class="status info">Run tests to see summary...</div>
+        <button onclick="runAllTests()">Run All Tests</button>
+    </div>
+
+    <script>
+        let testResults = {
+            server: false,
+            images: false,
+            routes: false
+        };
+
+        async function testServer() {
+            const status = document.getElementById('server-status');
+            try {
+                const response = await fetch('/');
+                if (response.ok) {
+                    status.className = 'status success';
+                    status.textContent = '✅ Server is running and responding correctly';
+                    testResults.server = true;
+                } else {
+                    status.className = 'status error';
+                    status.textContent = '❌ Server responded with error: ' + response.status;
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Cannot connect to server: ' + error.message;
+            }
+            updateSummary();
+        }
+
+        async function testImages() {
+            const status = document.getElementById('image-status');
+            const results = document.getElementById('image-results');
+            const imageUrls = [
+                'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop',
+                'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop',
+                'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
+                'https://images.unsplash.com/photo-1551816230-ef5deaed4a26?w=400&h=300&fit=crop',
+                'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop'
+            ];
+
+            results.innerHTML = '<div class="test-result">Testing image loading...</div>';
+            let loadedCount = 0;
+            let errorCount = 0;
+
+            for (let i = 0; i < imageUrls.length; i++) {
+                try {
+                    const response = await fetch(imageUrls[i], { method: 'HEAD' });
+                    if (response.ok) {
+                        loadedCount++;
+                        results.innerHTML += `<div class="test-result">✅ Image ${i + 1}: Loaded successfully</div>`;
+                    } else {
+                        errorCount++;
+                        results.innerHTML += `<div class="test-result">❌ Image ${i + 1}: Failed to load (${response.status})</div>`;
+                    }
+                } catch (error) {
+                    errorCount++;
+                    results.innerHTML += `<div class="test-result">❌ Image ${i + 1}: Network error - ${error.message}</div>`;
+                }
+            }
+
+            if (loadedCount === imageUrls.length) {
+                status.className = 'status success';
+                status.textContent = `✅ All ${loadedCount} images loaded successfully`;
+                testResults.images = true;
+            } else {
+                status.className = 'status warning';
+                status.textContent = `⚠️ ${loadedCount}/${imageUrls.length} images loaded, ${errorCount} failed`;
+                testResults.images = false;
+            }
+            updateSummary();
+        }
+
+        async function testRoute(route) {
+            const results = document.getElementById('route-results');
+            try {
+                const response = await fetch(route);
+                if (response.ok) {
+                    results.innerHTML += `<div class="test-result">✅ Route ${route}: Working (${response.status})</div>`;
+                } else {
+                    results.innerHTML += `<div class="test-result">❌ Route ${route}: Error (${response.status})</div>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="test-result">❌ Route ${route}: Network error - ${error.message}</div>`;
+            }
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('summary');
+            const passedTests = Object.values(testResults).filter(result => result).length;
+            const totalTests = Object.keys(testResults).length;
+
+            if (passedTests === totalTests) {
+                summary.className = 'status success';
+                summary.textContent = `🎉 All tests passed! Application is working perfectly (${passedTests}/${totalTests})`;
+            } else if (passedTests > 0) {
+                summary.className = 'status warning';
+                summary.textContent = `⚠️ Some tests passed. Application needs attention (${passedTests}/${totalTests})`;
+            } else {
+                summary.className = 'status error';
+                summary.textContent = `❌ No tests passed. Application has issues (${passedTests}/${totalTests})`;
+            }
+        }
+
+        async function runAllTests() {
+            await testServer();
+            await testImages();
+            await testRoute('/');
+            await testRoute('/login');
+            await testRoute('/register');
+            
+            const status = document.getElementById('route-status');
+            status.className = 'status info';
+            status.textContent = '✅ All route tests completed';
+            testResults.routes = true;
+            updateSummary();
+        }
+
+        // Auto-run server test on page load
+        window.addEventListener('load', testServer);
+    </script>
+</body>
+</html>

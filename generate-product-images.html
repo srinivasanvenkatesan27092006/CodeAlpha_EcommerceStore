@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Product Images</title>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="400" style="display:none;"></canvas>
+    <div id="output"></div>
+    
+    <script>
+        function createAndSaveImage(filename, bgColor, textColor, productName) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas and set background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, 600, 400);
+            
+            // Add gradient overlay
+            const gradient = ctx.createLinearGradient(0, 0, 600, 400);
+            gradient.addColorStop(0, 'rgba(255,255,255,0.1)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.2)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 600, 400);
+            
+            // Add product name
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 42px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(productName, 300, 180);
+            
+            // Add "Product Image" text
+            ctx.font = '24px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillText('Product Image', 300, 220);
+            
+            // Add decorative elements
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(20, 20, 560, 360);
+            
+            // Convert to blob and create download link
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.textContent = `Right-click and "Save Link As..." ${filename}`;
+                link.style.display = 'block';
+                link.style.margin = '10px';
+                link.style.padding = '15px';
+                link.style.backgroundColor = '#007bff';
+                link.style.color = 'white';
+                link.style.textDecoration = 'none';
+                link.style.fontSize = '16px';
+                link.style.borderRadius = '5px';
+                link.style.textAlign = 'center';
+                
+                document.getElementById('output').appendChild(link);
+            }, 'image/png');
+        }
+        
+        // Create all product images
+        const products = [
+            { name: 'MacBook Pro 16"', file: 'macbook-pro.png', bg: '#3498db', text: '#ffffff' },
+            { name: 'iPhone 15 Pro Max', file: 'iphone-15.png', bg: '#e74c3c', text: '#ffffff' },
+            { name: 'Sony WH-1000XM5', file: 'sony-headphones.png', bg: '#2ecc71', text: '#ffffff' },
+            { name: 'Apple Watch Ultra 2', file: 'apple-watch.png', bg: '#f39c12', text: '#ffffff' },
+            { name: 'iPad Pro 12.9"', file: 'ipad-pro.png', bg: '#9b59b6', text: '#ffffff' }
+        ];
+        
+        document.getElementById('output').innerHTML = '<h2>Product Images Generator</h2><p>Right-click each link below and choose "Save Link As..." to save the images to your desktop/code/public/images/ folder:</p>';
+        
+        products.forEach((product, index) => {
+            setTimeout(() => {
+                createAndSaveImage(product.file, product.bg, product.text, product.name);
+            }, index * 200);
+        });
+        
+        setTimeout(() => {
+            document.getElementById('output').innerHTML += '<br><br><strong>Instructions:</strong><br>1. Right-click each blue link above<br>2. Select "Save Link As..."<br>3. Navigate to: Desktop/code/public/images/<br>4. Click Save to replace the existing files<br>5. Refresh your website to see the new images!';
+        }, 1500);
+    </script>
+</body>
+</html>

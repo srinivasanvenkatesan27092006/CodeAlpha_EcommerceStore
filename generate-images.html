@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Product Images</title>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="400" style="display:none;"></canvas>
+    <script>
+        function createImage(filename, text, color) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 600, 400);
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 600, 400);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, '#ffffff');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 600, 400);
+            
+            // Add text
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 300, 200);
+            
+            // Download as image
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        // Create images
+        setTimeout(() => createImage('macbook-pro.jpg', 'MacBook Pro 16"', '#4A90E2'), 100);
+        setTimeout(() => createImage('iphone-15.jpg', 'iPhone 15 Pro Max', '#E74C3C'), 200);
+        setTimeout(() => createImage('sony-headphones.jpg', 'Sony WH-1000XM5', '#2ECC71'), 300);
+        setTimeout(() => createImage('apple-watch.jpg', 'Apple Watch Ultra 2', '#F39C12'), 400);
+        setTimeout(() => createImage('ipad-pro.jpg', 'iPad Pro 12.9"', '#9B59B6'), 500);
+    </script>
+</body>
+</html>
